@@ -35,7 +35,7 @@ class BaseContent(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
     created = models.DateField()
-    rating = models.PositiveSmallIntegerField()
+    rating = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -49,8 +49,8 @@ class BaseAction(models.Model):
     text = models.TextField()
     created = models.DateTimeField(default=datetime.now(), primary_key=True)
     updated = models.DateTimeField(blank=True)
-    likes = models.PositiveIntegerField()
-    dislikes = models.PositiveIntegerField()
+    likes = models.PositiveIntegerField(default=0)
+    dislikes = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
