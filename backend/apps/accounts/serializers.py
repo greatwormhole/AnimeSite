@@ -1,8 +1,8 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Anime
+from .models import AuthUser
 
-class AnimeListSerializer(ModelSerializer):
+class UserSerializer(ModelSerializer):
 
     class Meta:
-        model = Anime
+        model = AuthUser
         fields = '__all__'

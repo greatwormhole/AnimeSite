@@ -14,12 +14,12 @@ class LoginAPIView(APIView):
 
 class AnimeListView(APIView):
     
-    model_serializer = AnimeListSerializer
+    serializer_class = AnimeListSerializer
 
     def get(self, request):
 
         animes = Anime.objects.all()
-        serializer = self.model_serializer(animes, many=True)
+        serializer = self.serializer_class(animes, many=True)
 
         return Response(serializer.data, status=HTTP_200_OK)
 

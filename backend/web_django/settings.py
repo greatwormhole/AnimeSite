@@ -10,9 +10,12 @@ ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
+
+    # Third-packages apps
     'rest_framework',
     'corsheaders',
 
+    # Django core apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -20,12 +23,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Own apps
     'apps.accounts',
     'apps.main',
 
 ]
 
 MIDDLEWARE = [
+
+    # Third-packages middleware
+    'corsheaders.middleware.CorsMiddleware',
+
+    # Django core middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -33,6 +42,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Own middleware
 ]
 
 ROOT_URLCONF = 'web_django.urls'
@@ -103,12 +114,14 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-#     ]
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 CORS_ORIGIN_WHITELIST = [
      'http://localhost:3000'
 ]
+
+AUTH_USER_MODEL = "accounts.AuthUser"

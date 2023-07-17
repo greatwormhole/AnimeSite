@@ -10,12 +10,19 @@ It's not supposed to use them without inheritance
 class BasePerson(models.Model):
 
     """
-    Base class for all persons in database
+    Base class for all person-related models in database
     """
 
     first_name = models.CharField(max_length=120)
     last_name = models.CharField(max_length=120)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(blank=True, null=True)
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}' if '' not in (self.first_name, self.last_name) else 'MissingName'
+
+    def __str__(self):
+        return self.full_name
 
     @property
     def age(self):
@@ -31,11 +38,14 @@ class BaseContent(models.Model):
     Base class for all content in database
     """
 
-    image = models.ImageField(upload_to='icons', default='../default_icons/image_missing.jpg')
-    name = models.CharField(max_length=250)
+    image = models.ImageField(upload_to='icons', default='icons/default_icons/image_missing.jpg')
+    name = models.CharField(max_length=250, unique=True)
     description = models.TextField()
-    created = models.DateField()
+    created = models.DateField(auto_now_add=True)
     rating = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         abstract = True
@@ -47,8 +57,8 @@ class BaseAction(models.Model):
     """
 
     text = models.TextField()
-    created = models.DateTimeField(default=datetime.now(), primary_key=True)
-    updated = models.DateTimeField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True, blank=True)
     likes = models.PositiveIntegerField(default=0)
     dislikes = models.PositiveIntegerField(default=0)
 
