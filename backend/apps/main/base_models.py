@@ -41,7 +41,7 @@ class BaseContent(models.Model):
     image = models.ImageField(upload_to='icons', default='icons/default_icons/image_missing.jpg')
     name = models.CharField(max_length=250, unique=True)
     description = models.TextField()
-    created = models.DateField(auto_now_add=True)
+    created = models.DateField()
     rating = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):

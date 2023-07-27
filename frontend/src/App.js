@@ -1,12 +1,11 @@
-import './App.css';
-import AnimeList from './Views/AnimeList';
+import React from "react";
 
 const App = () => {
   return (
     <div>
-      
+
     </div>
-  );
+ );
 }
 
 export default App;

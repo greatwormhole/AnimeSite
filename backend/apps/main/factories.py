@@ -16,6 +16,7 @@ class ContentFactory(DjangoModelFactory):
 
     name = factory.Faker('sentence', nb_words = 4)
     description = factory.Faker('paragraph', nb_sentences = 8)
+    created = factory.Faker('date')
 
     class Meta:
         model = BaseContent

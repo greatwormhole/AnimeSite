@@ -1,9 +1,14 @@
 from pathlib import Path
 import os
+from datetime import timedelta as td, datetime as dt
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-5_u*(2mv-uqtb*!y+)g@*@wz_=@*2zpaa3=3$#^v74mykpbnib'
+SECRET_KEY = """
+            QLSfkExoj5WVlsD2WgOUgaFpovraEzhf
+            MegctHZiK6EOEKetOloO0jaDYwxoNGJ4
+            Q5dDTpQEYjZ2hzM9MLWd5BwazgkHTFGK
+            """
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
@@ -116,8 +121,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
+    # 'DEFAULT_PAGINATION_CLASS': 
+    #     'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'apps.accounts.auth.rest_authentication.JWTAuthentication',
+    ],
+        
 }
 
 CORS_ORIGIN_WHITELIST = [
@@ -125,3 +136,22 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 AUTH_USER_MODEL = "accounts.AuthUser"
+
+JWT_TOKEN_CONFIGURATION = {
+    'ACCESS_TOKEN_LIFETIME':td(minutes=5),
+    'REFRESH_TOKEN_LIFETIME':td(days=30),
+
+    'ENCODING_ALGORITHM': 'HS256',
+    'SIGNATURE_KEY': SECRET_KEY,
+    'JWT_AUTH_HEADER': 'Bearer',
+    'JWT_KEYS': {
+        'exp': dt,
+        'username': str,
+        'email': str,
+    },
+}
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'apps.accounts.auth.backends.EmailAuthenticationBackend',
+]

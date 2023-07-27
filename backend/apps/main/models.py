@@ -106,8 +106,8 @@ class Comment(BaseAction):
 class Review(BaseAction):
 
     user = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, blank=True)
-    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, blank=True)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, blank=True, null=True)
+    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, blank=True, null=True)
 
     @property
     def content(self):
@@ -119,6 +119,18 @@ class Review(BaseAction):
     class Meta(BaseAction.Meta):
         verbose_name = 'Рецензия'
         verbose_name_plural = 'Рецензии'
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(anime__isnull=True) &
+                    Q(manga__isnull=False)
+                ) | (
+                    Q(anime__isnull=False) &
+                    Q(manga__isnull=True)
+                ),
+                name='One content required for single review'
+            )
+        ]
 
 class News(BaseContent):
 

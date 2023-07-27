@@ -95,9 +95,6 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
-    def _generate_jwt(self):
-        pass
-
     class Meta(AbstractBaseUser.Meta):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
