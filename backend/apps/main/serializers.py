@@ -1,13 +1,18 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Anime, Manga
 
 class ContentListSerializer(ModelSerializer):
 
     class Meta:
-        fields = ['id', 'name', 'created', 'image', 'rating']
+        fields = ['id', 'name', 'created', 'image']
 
 class ContentDetailSerializer(ModelSerializer):
 
+    rating = SerializerMethodField('content_rating')
+    
+    def content_rating(self, content):
+        return round(content.rating, 2)
+    
     class Meta:
         fields = '__all__'
         depth = 1
@@ -24,10 +29,10 @@ class MangaListSerializer(ContentListSerializer):
 
 class AnimeDetailSerializer(ContentDetailSerializer):
 
-    class Meta(ContentListSerializer.Meta):
+    class Meta(ContentDetailSerializer.Meta):
         model = Anime
 
 class MangaDetailSerializer(ContentDetailSerializer):
 
-    class Meta(ContentListSerializer.Meta):
+    class Meta(ContentDetailSerializer.Meta):
         model = Manga

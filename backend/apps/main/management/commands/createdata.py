@@ -46,19 +46,21 @@ class Command(BaseCommand):
 
         users = [UserFactory() for _ in range(NUM_PERSON)]
 
-        comments_for_manga = [CommentFactory(
+        comments_for_manga = [MangaCommentFactory(
             user = Profile.objects.get(user=random.choice(users)),
             manga = random.choice(mangas),
         ) for _ in range(round(NUM_PERSON * ACTION_MULTIPLIER))]
-        comments_for_anime = [CommentFactory(
+        comments_for_anime = [AnimeCommentFactory(
             user = Profile.objects.get(user=random.choice(users)),
             anime = random.choice(animes),
         ) for _ in range(round(NUM_PERSON * ACTION_MULTIPLIER))]
-        reviews_for_manga = [ReviewFactory(
+        reviews_for_manga = [MangaReviewFactory(
             user = Profile.objects.get(user=random.choice(users)),
             manga = random.choice(mangas),
+            rate = random.randint(0, 10),
         ) for _ in range(round(NUM_PERSON * ACTION_MULTIPLIER))]
-        reviews_for_anime = [ReviewFactory(
+        reviews_for_anime = [AnimeReviewFactory(
             user = Profile.objects.get(user=random.choice(users)),
             anime = random.choice(animes),
+            rate = random.randint(0, 10),
         ) for _ in range(round(NUM_PERSON * ACTION_MULTIPLIER))]

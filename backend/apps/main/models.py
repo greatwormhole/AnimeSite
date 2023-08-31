@@ -1,10 +1,8 @@
 from django.db import models
-from django.dispatch import receiver
-from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save
-from apps.accounts.models import AuthUser
 
+from functools import reduce
+
+from apps.accounts.models import AuthUser
 from .base_models import BaseContent, BasePerson, BaseAction
 
 class Company(BaseContent):
@@ -39,9 +37,15 @@ class Category(models.Model):
 
 class Manga(BaseContent):
 
+    image = models.ImageField(upload_to='images/content/manga   ', default='images/default_images/image_missing.jpg')
     categories = models.ManyToManyField(Category, blank=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    @property
+    def rating(self):
+        reviews = self.reviews.values_list('rate', flat=True)
+        return reduce(lambda i, j: i + j, reviews, 0) / len(reviews)
 
     class Meta(BaseContent.Meta):
         verbose_name = 'Манга'
@@ -49,11 +53,17 @@ class Manga(BaseContent):
 
 class Anime(BaseContent):
 
+    image = models.ImageField(upload_to='images/content/anime', default='images/default_images/image_missing.jpg')
     categories = models.ManyToManyField(Category, blank=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True)
     actors = models.ManyToManyField(Actor, blank=True)
     original = models.ForeignKey(Manga, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    @property
+    def rating(self):
+        reviews = self.reviews.values_list('rate', flat=True)
+        return reduce(lambda i, j: i + j, reviews, 0) / len(reviews)
 
     class Meta(BaseContent.Meta):
         verbose_name = 'Аниме'
@@ -61,10 +71,14 @@ class Anime(BaseContent):
 
 class Profile(BasePerson):
     
+    first_name = models.CharField(max_length=120, default='')
+    last_name = models.CharField(max_length=120, default='')
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, primary_key=True)
-    profile_picture = models.ImageField(upload_to='icons/profile', default='icons/default_icons/image_missing.jpg')
-    user_manga_favorites = models.ManyToManyField(Manga, blank=True)
-    user_anime_favorites = models.ManyToManyField(Anime, blank=True)
+    profile_picture = models.ImageField(upload_to='images/profile', default='images/default_icons/image_missing.jpg')
+    user_manga_favorites = models.ManyToManyField(Manga, blank=True, related_name='manga_favorites')
+    user_anime_favorites = models.ManyToManyField(Anime, blank=True, related_name='anime_favorites')
+    user_manga_reviews = models.ManyToManyField(Manga, through='MangaReview', blank=True, related_name='manga_reviews')
+    user_anime_reviews = models.ManyToManyField(Anime, through='AnimeReview', blank=True, related_name='anime_reviews')
 
     @property
     def full_name(self):
@@ -74,62 +88,60 @@ class Profile(BasePerson):
         verbose_name = 'Профиль'
         verbose_name_plural = 'Профили'
 
-class Comment(BaseAction):
+class AnimeComment(BaseAction):
 
     user = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, null=True, blank=True)
-    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, null=True, blank=True)
-
-    @property
-    def content(self):
-        return self.anime if self.anime is not None else self.manga
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f'Комментарий к {self.content} от {self.user}'
+        return f'Комментарий к аниме от {self.user}'
 
     class Meta(BaseAction.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        constraints = [
-            models.CheckConstraint(
-                check=(
-                    Q(anime__isnull=True) &
-                    Q(manga__isnull=False)
-                ) | (
-                    Q(anime__isnull=False) &
-                    Q(manga__isnull=True)
-                ),
-                name='One content required for single comment'
-            )
-        ]
-
-class Review(BaseAction):
+        
+class MangaComment(BaseAction):
 
     user = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, blank=True, null=True)
-    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, blank=True, null=True)
-
-    @property
-    def content(self):
-        return self.anime if self.anime is not None else self.manga
+    manga = models.ForeignKey(Manga, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f'Обзор к {self.content} от {self.user}'
+        return f'Комментарий к манге от {self.user}'
 
     class Meta(BaseAction.Meta):
-        verbose_name = 'Рецензия'
-        verbose_name_plural = 'Рецензии'
+        verbose_name = 'Комментарий к манге'
+        verbose_name_plural = 'Комментарии к манге'
+
+class AnimeReview(BaseAction):
+
+    user = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='reviews')
+    rate = models.PositiveSmallIntegerField()
+    
+    def __str__(self):
+        return f'Обзор к аниме от {self.user}'
+
+    class Meta(BaseAction.Meta):
+        verbose_name = 'Рецензия к аниме'
+        verbose_name_plural = 'Рецензии к аниме'
+        
+class MangaReview(BaseAction):
+
+    user = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
+    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, related_name='reviews')
+    rate = models.PositiveSmallIntegerField()
+    
+    def __str__(self):
+        return f'Обзор к манге {self.manga} от {self.user}'
+
+    class Meta(BaseAction.Meta):
+        verbose_name = 'Рецензия к манге'
+        verbose_name_plural = 'Рецензии к манге'
         constraints = [
             models.CheckConstraint(
-                check=(
-                    Q(anime__isnull=True) &
-                    Q(manga__isnull=False)
-                ) | (
-                    Q(anime__isnull=False) &
-                    Q(manga__isnull=True)
-                ),
-                name='One content required for single review'
-            )
+                check=models.Q(rate__gte=0) & models.Q(rate__lte=10),
+                name='Оценка должна быть от 0 до 10',
+            ),
         ]
 
 class News(BaseContent):
@@ -137,13 +149,3 @@ class News(BaseContent):
     class Meta(BaseContent.Meta):
         verbose_name = 'Новость'
         verbose_name_plural = 'Новости'
-
-@receiver(post_save, sender=AuthUser)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance, first_name='', last_name='')
-    else:
-        try:
-            instance.profile.save()
-        except ObjectDoesNotExist:
-            Profile.objects.create(user=instance, first_name='', last_name='')

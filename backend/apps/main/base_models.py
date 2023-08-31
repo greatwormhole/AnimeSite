@@ -38,12 +38,10 @@ class BaseContent(models.Model):
     Base class for all content in database
     """
 
-    image = models.ImageField(upload_to='icons', default='icons/default_icons/image_missing.jpg')
     name = models.CharField(max_length=250, unique=True)
-    description = models.TextField()
-    created = models.DateField()
-    rating = models.PositiveSmallIntegerField(default=0)
-
+    description = models.TextField(blank=True, null=True)
+    created = models.DateField(null=True, blank=True)
+    
     def __str__(self):
         return self.name
 
@@ -56,7 +54,7 @@ class BaseAction(models.Model):
     Base class for all user actions in database
     """
 
-    text = models.TextField()
+    text = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, blank=True)
     likes = models.PositiveIntegerField(default=0)
