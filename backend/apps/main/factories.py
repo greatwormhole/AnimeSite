@@ -68,12 +68,22 @@ class NewsFactory(ContentFactory):
     class Meta:
         model = News
 
-class CommentFactory(ActionFactory):
+class MangaCommentFactory(ActionFactory):
 
     class Meta:
-        model = Comment
+        model = MangaComment
+        
+class AnimeCommentFactory(ActionFactory):
 
-class ReviewFactory(ActionFactory):
+    class Meta:
+        model = AnimeComment
+
+class MangaReviewFactory(ActionFactory):
     
     class Meta:
-        model = Review
+        model = MangaReview
+        
+class AnimeReviewFactory(ActionFactory):
+    
+    class Meta:
+        model = AnimeReview

@@ -1,58 +1,55 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
-from rest_framework.permissions import IsAuthenticated
-from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.permissions import AllowAny, DjangoModelPermissions
+from rest_framework.viewsets import ModelViewSet
 
 from .serializers import *
-from .models import Anime, Manga
+from .models import *
 
-class ContentListView(APIView):
-
-    serializer_class = None
-    model_class = None
-
-    def get(self, request):
-
-        objects = self.model_class.objects.all()
-        serializer = self.serializer_class(objects, many=True)
-        response = Response(serializer.data, status=HTTP_200_OK)
-
-        return response
+class AnimeViewSet(ModelViewSet):
+    queryset = Anime.objects.all()
     
-class ContentDetailView(APIView):
+    def get_permissions(self):
+        match self.action:
+            case 'list':
+                permission_classes = [AllowAny]
+            case 'retrieve':
+                permission_classes = [AllowAny]
+            case _:
+                permission_classes = [DjangoModelPermissions]
+        return [permission() for permission in permission_classes]
+    
+    def get_serializer_class(self):
+        match self.action:
+            case 'list':
+                return AnimeListSerializer
+            case _:
+                return AnimeDetailSerializer
 
-    serializer_class = None
-    model_class = None
-
-    def get(self, request, pk):
-
-        try:
-            obj = self.model_class.objects.get(id=pk)
-        except ObjectDoesNotExist:
-            return Response({'error': "Object doesn't exist"}, status=HTTP_404_NOT_FOUND)
+class MangaViewSet(ModelViewSet):
+    queryset = Manga.objects.all()
         
-        serializer = self.serializer_class(obj)
-        response = Response(serializer.data, status=HTTP_200_OK)
+    def get_permissions(self):
+        match self.action:
+            case 'list':
+                permission_classes = [AllowAny]
+            case 'retrieve':
+                permission_classes = [AllowAny]
+            case _:
+                permission_classes = [DjangoModelPermissions]
+        return [permission() for permission in permission_classes]
 
-        return response
+    def get_serializer_class(self):
+        match self.action:
+            case 'list':    
+                return MangaListSerializer
+            case _:
+                return MangaDetailSerializer
 
-class AnimeListView(ContentListView):
+class NewsViewSet(ModelViewSet):
+    queryset = News.objects.all()
     
-    serializer_class = AnimeListSerializer
-    model_class = Anime
-
-class AnimeDetailView(ContentDetailView):
-
-    serializer_class = AnimeDetailSerializer
-    model_class = Anime
-
-class MangaListView(ContentListView):
-
-    serializer_class = MangaListSerializer
-    model_class = Manga
-    
-class MangaDetailView(ContentDetailView):
-
-    serializer_class = MangaDetailSerializer
-    model_class = Manga
+    def get_permissions(self):
+        match self.action:
+            case 'list':
+                pass
+            case '':
+                pass

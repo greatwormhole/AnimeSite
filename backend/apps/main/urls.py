@@ -1,9 +1,13 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
+
 from .views import *
 
+main_router = DefaultRouter()
+main_router.register(r'animes', AnimeViewSet)
+main_router.register(r'mangas', MangaViewSet)
+
 urlpatterns = [
-    path('animes/', AnimeListView.as_view(), name='anime_list'),
-    path('mangas/', MangaListView.as_view(), name='manga_list'),
-    path('animes/<int:pk>/', AnimeDetailView.as_view(), name='detail_anime'),
-    path('mangas/<int:pk>/', MangaDetailView.as_view(), name='detail_manga'),
+    
 ]
+
+urlpatterns += main_router.urls
