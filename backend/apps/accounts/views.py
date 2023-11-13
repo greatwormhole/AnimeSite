@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -21,7 +22,7 @@ class UserListView(APIView):
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser, ]
 
-    def get(self, request):
+    def get(self, request: Request):
 
         users = AuthUser.objects.all()
         serializer = self.serializer_class(users, many=True)
@@ -30,7 +31,7 @@ class UserListView(APIView):
 
 class RefreshJWTTokenView(APIView):
 
-    def post(self, request):
+    def post(self, request: Request):
         
         raw_refresh_token = request.data.get('refresh', None)
 
@@ -55,7 +56,7 @@ class RefreshJWTTokenView(APIView):
 
 class LoginUserView(APIView):
 
-    def post(self, request):
+    def post(self, request: Request):
         
         credentials = request.data
 

@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  frontend:
+    build: ../frontend/
+    command: npm start
+    image: react-web
+    container_name: react
+    env_file:
+      - ./envs/frontend.env
+
+  backend:
+    build: ../backend/
+    command: "python manage.py runserver ${BACKEND_HOST}:${BACKEND_PORT}"
+    image: django-web
+    container_name: django
+    env_file:
+      - ./envs/backend.env
+    volumes:
+      - ../backend/:/usr/src/backend/
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+    env_file:
+      - ./envs/db.env
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+
+  server:
+    image: caprover:latest
+    container_name: web-server
+
+volumes:
+  db_data:
+    driver: local
+  
+networks:
+  web-app:
+    name: web-app
+    driver: bridge
