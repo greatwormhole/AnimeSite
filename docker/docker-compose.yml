@@ -5,22 +5,34 @@ services:
   frontend:
     build: ../frontend/
     command: npm start
+    restart: always
     image: react-web
     container_name: react
     env_file:
       - ./envs/frontend.env
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    networks:
+      - client-server
 
   backend:
     build: ../backend/
-    command: "python manage.py runserver ${BACKEND_HOST}:${BACKEND_PORT}"
+    restart: always
     image: django-web
     container_name: django
     env_file:
       - ./envs/backend.env
+      - ./envs/db.env
+    command: "python manage.py runserver ${BACKEND_HOST}:${BACKEND_PORT}"
     volumes:
       - ../backend/:/usr/src/backend/
     depends_on:
       - db
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    networks:
+      - backend
+      - client-server
 
   db:
     image: postgres:latest
@@ -32,16 +44,18 @@ services:
       - ./envs/db.env
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    networks:
+      - backend 
 
-  server:
-    image: caprover:latest
-    container_name: web-server
 
 volumes:
   db_data:
     driver: local
   
 networks:
-  web-app:
-    name: web-app
+  client-server:
+    name: client-server
+    driver: bridge
+  backend:
+    name: backend
     driver: bridge

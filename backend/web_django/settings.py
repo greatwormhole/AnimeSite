@@ -4,11 +4,7 @@ from datetime import timedelta as td, datetime as dt
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = """
-            QLSfkExoj5WVlsD2WgOUgaFpovraEzhf
-            MegctHZiK6EOEKetOloO0jaDYwxoNGJ4
-            Q5dDTpQEYjZ2hzM9MLWd5BwazgkHTFGK
-            """
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
@@ -76,11 +72,11 @@ DATABASES = {
     # Basic usage of postgres database
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'AnimeList',
-        'USER': 'postgres',
-        'PASSWORD': 'ybrbnjc123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'postgres_db',
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
 

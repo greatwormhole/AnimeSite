@@ -18,6 +18,8 @@ from rest_framework.mixins import (
     DestroyModelMixin,
     UpdateModelMixin,
 )
+from rest_framework.serializers import ModelSerializer
+from typing import Type
 
 from .models import AuthUser
 from .serializers import *
@@ -127,6 +129,9 @@ class UserViewSet(ListModelMixin,
             
     def get_object(self):
         return 
+    
+    def get_serializer(self, *args, **kwargs) -> Type[ModelSerializer]:
+        return super().get_serializer(*args, **kwargs)
             
     @action(methods=['PATCH'], detail=True, url_path='change-password', url_name='change_password')
     def change_password(self, request: Request, pk: int | None = None):
